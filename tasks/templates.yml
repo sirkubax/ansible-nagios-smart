@@ -1,0 +1,19 @@
+- name: template the files
+  sudo: true
+  template: >
+    src="{{ item }}"
+    dest="/usr/local/nagios/etc/objects/{{ item }}"
+    owner=nagios
+    group=nagios
+    mode=755
+  with_items:
+      - prd.cfg
+  tags:
+      - etc
+
+- name: restart nagios
+  sudo: true
+  service: name=nagios4 state=restarted
+  notify: restart apache
+  tags:
+      - etc

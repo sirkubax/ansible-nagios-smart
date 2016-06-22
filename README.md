@@ -1,1 +1,0 @@
-# ansible-nagios-smart

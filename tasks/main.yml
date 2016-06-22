@@ -1,0 +1,12 @@
+# nagios smartclt check
+- tasks:
+  include: smart.yml
+  tags:
+      - smart
+
+#EXAMPLE:
+## nagios templates
+#- tasks:
+#  include: templates.yml
+#  tags:
+#      - templates

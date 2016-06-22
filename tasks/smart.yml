@@ -1,0 +1,56 @@
+- name: 'mkdir /root/check_smart'  
+  file:                                     
+      dest: /git/check_smart     
+      state: directory                          
+  tags:
+      - smart
+
+- name: "clone git repo"
+  git:
+      repo: https://gist.github.com/9800560a28abc1143e03c783aa64bc8a.git
+      dest: /git/check_smart
+      accept_hostkey: True
+      force: yes
+  tags:
+      - smart
+
+- name: "allow nagios to check smart"                           
+  lineinfile:                                                   
+      dest: /etc/sudoers                                        
+      line: '{{ item }}'                                        
+      regexp: '^nagios\s+ALL=\(nagios\)'                        
+  with_items:                                                   
+      - "nagios  ALL= NOPASSWD: /git/check_smart/smart_watch.py"
+  tags:
+      - smart
+
+  - name: 'chown /git/check_smart'  
+    file:                                     
+        dest: /git/check_smart     
+        state: directory                          
+        recurse: yes
+        owner: nagios
+        group: nagios
+    tags:
+        - smart
+
+  - name: 'chomod /git/check_smart/smart_watch.py'  
+    file:                                     
+        dest: /git/check_smart/smart_watch.py
+        state: file
+        owner: nagios
+        group: nagios
+        mode: 0555
+    tags:
+        - smart
+ 
+- name: "allow nagios to check smart"                           
+  lineinfile:                                                   
+      dest: /etc/nagios/nrpe_local.cfg
+      line: '{{ item }}'                                        
+      regexp: 'check_smart_a'
+  with_items:                                                   
+      - 'command[check_smart_a]=sudo /git/check_smart/smart_watch.py --device /dev/sda --logfile /tmp/a; python /git/check_smart/check_smart_status.py --logfile /tmp/a'
+  tags:
+      - smart
+
